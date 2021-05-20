@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 
 import { OrbitControls } from './components/OrbitControls';
+import ControlPanel from './components/ControlPanel';
 
-import aluminum from './images/4kAluminum2.jpg';
-import steel from './images/4kSteel.jpeg';
+// import { degreesToRad, getLinearVelocityFromAngularVelocity } from './helpers/physicsHelpers';
+import { 
+  getMotor,
+  getAxle,
+  getArm,
+  getBall,
+  getTarget,
+} from './helpers/meshHelpers';
 
 import './App.css';
 
@@ -16,8 +23,9 @@ const cameraConfig = {
 }
 
 const App = () => {
-  const [scene, setScene] = useState(new THREE.Scene());
-  const [camera, setCamera] = useState(
+  // Three scene setup
+  const [scene] = useState(new THREE.Scene());
+  const [camera] = useState(
     new THREE.PerspectiveCamera( 
       cameraConfig.fov, 
       cameraConfig.aspectRatio, 
@@ -25,137 +33,93 @@ const App = () => {
       cameraConfig.farClipping 
     )
   );
-  const [loader, setLoader] = useState(new THREE.TextureLoader());
+  const [loader] = useState(new THREE.TextureLoader());
   const [renderer, setRenderer] = useState();
+  const [controls, setControls] = useState();
+
   const [isAnimated, setIsAnimated] = useState(false);
-  const [cameraControl, setCameraControl] = useState();
+  const animate = useCallback(() => {
+    if(!isAnimated) return;
+
+    requestAnimationFrame( animate );
+    controls.update();
+    // animateArm();
+    renderer?.render( scene, camera );
+  }, [isAnimated, camera, scene, renderer, controls])
+
+  const [arm, setArm] = useState();
+  const [ball, setBall] = useState();
   
-  const degreesToRad = (d) => d * 180 / Math.PI;
-
-  const getMotor = () => {
-    const geometry = new THREE.CylinderGeometry( 60, 60, 300, 32 );
-    const material = new THREE.MeshBasicMaterial({
-      map: loader.load(aluminum),
-    });
-    
-    const motor = new THREE.Mesh( geometry, material );
-    
-    motor.position.x = -150;
-
-    motor.rotation.x = degreesToRad(90);
-    motor.rotation.z = degreesToRad(90);
-    
-    
-    return motor;
-  }
-
-  const getArm = () => {
-    const geometry = new THREE.CylinderGeometry( 7.5, 7.5, 200, 32 );
-    const material = new THREE.MeshBasicMaterial({
-      map: loader.load(aluminum),
-    });
-    
-    const arm = new THREE.Mesh( geometry, material );
-    
-
-    arm.position.x = 10;
-    arm.position.y = 80;
-
-    arm.rotation.y = degreesToRad(90);
-    
-    return arm;
-  }
-
-  const getBall = () => {
-    const geometry = new THREE.SphereGeometry( 7.5, 32, 32 );
-    const material = new THREE.MeshBasicMaterial({
-      map: loader.load(steel),
-    });
-    const ball = new THREE.Mesh( geometry, material );
-    ball.position.x = 10;
-    ball.position.y = 170;
-    ball.position.z = -15;
-    
-    return ball;
-  }
-
-  const getTarget = () => {
-    const geometry = new THREE.BoxGeometry(150, 150, 1);
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    const target = new THREE.Mesh( geometry, material );
-    target.position.x = 0;
-    target.position.y = 150;
-    target.position.z = -200;
-
-    return target;
-  }
-
-
   useEffect(() => {
     console.log('set renderer')
     setRenderer(new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas'), antialias: true }));
   }, []);
 
   useEffect(() => {
-    const motor = getMotor();
-    const arm = getArm();
-    const ball = getBall();
-    const target = getTarget();
+    if(!renderer || !scene || !camera) return;
 
-    
+    // build meshes
+    const motor = getMotor(loader);
+    const axle = getAxle(loader);
+    const arm = getArm(loader);
+    const ball = getBall(loader);
+    const target = getTarget(loader);
+    const gridHelper = new THREE.GridHelper( 5000, 100 );
 
-    if(!isAnimated && renderer && scene && camera) {
-      console.log('building scene')
+    setArm(arm);
+    setBall(ball);
 
-      // const newCameraControl = new CameraControl(
-      //   renderer, 
-      //   camera, 
-      //   () => window.requestAnimationFrame(() => renderer.render(scene, camera))
-      // );
-      // setCameraControl(newCameraControl);
+    setControls(new OrbitControls( camera, renderer.domElement ));
 
-      const controls = new OrbitControls( camera, renderer.domElement );
-      camera.position.set( 0, 600, 1200 );
+    camera.position.set( 0, 600, 1200 );
 
-      scene.add( motor );
-      scene.add( arm );
-      scene.add( ball );
-      scene.add( target );
+    // add meshes to scene
+    scene.add( motor );
+    scene.add( axle );
+    arm.add( ball );
+    scene.add( arm );
+    scene.add( target );
+    scene.add( gridHelper );
 
-      camera.position.z = 1200;
-      camera.position.y = 600;
-      camera.lookAt(motor)
+    console.log('building scene')
+    console.log(scene)
 
+    setIsAnimated(true);
 
-      console.log(scene)
-    
-      const animate = () => {
-        requestAnimationFrame( animate );
+  }, [renderer, scene, camera, loader]);
 
-        // put animations here
-        controls.update();
-
-        renderer?.render( scene, camera );
-        setIsAnimated(false);
-      }
-      
-      setIsAnimated(true);
-      animate();
-    }
-
-  }, [renderer, scene, camera, isAnimated]);
+  useEffect(() => {
+    animate();
+  }, [animate, isAnimated, camera, controls, renderer, scene])
 
   const onContextMenu = (e) => {
     e.preventDefault();
+  };
 
-  }
+  const animateArm = () => {
 
+  };
+
+  const startMotor = () => {
+
+  };
+
+  const fire = () => {
+
+  };
+
+  const stopAnimation = () => setIsAnimated(false);
 
   return (
     <div className="app">
-      <h1>Introducing: The Chuck Norris</h1>
-      <h2>Our latest extension</h2>
-      <canvas width={1200} height={800} onContextMenu={onContextMenu} id="canvas" />
+      <div style={{ margin: 30 }}>
+        <h1 style={{ margin: 10 }}>Introducing: The Chuck Norris</h1>
+        <h2 style={{ margin: 10 }}>Our latest extension</h2>
+      </div>
+      <div style={{ position: 'relative', width: 1200, height: 800 }}>
+        <canvas width={1200} height={800} onContextMenu={onContextMenu} id="canvas" />
+        <ControlPanel stopAnimation={stopAnimation} startMotor={startMotor} fire={fire} />
+      </div>
     </div>
   );
 }
