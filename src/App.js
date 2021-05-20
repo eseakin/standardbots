@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 
-import { OrbitControls } from './components/OrbitControls';
+import { OrbitControls } from './utils/OrbitControls';
 import ControlPanel from './components/ControlPanel';
 
-// import { degreesToRad, getLinearVelocityFromAngularVelocity } from './helpers/physicsHelpers';
+import { degreesToRad } from './helpers/physicsHelpers';
 import { 
   getMotor,
   getAxle,
@@ -22,7 +22,25 @@ const cameraConfig = {
   farClipping: 10000
 }
 
+// class Simulator {
+//   constructor(props) {
+//     this.scene = new THREE.Scene();
+//     this.camera = new THREE.PerspectiveCamera( 
+//       cameraConfig.fov, 
+//       cameraConfig.aspectRatio, 
+//       cameraConfig.nearClipping, 
+//       cameraConfig.farClipping 
+//     );
+//     this.loader = new THREE.TextureLoader();
+//     this.renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas'), antialias: true })
+//   }
+
+
+// }
+
 const App = () => {
+  const [isSetup, setIsSetup] = useState(false);
+
   // Three scene setup
   const [scene] = useState(new THREE.Scene());
   const [camera] = useState(
@@ -36,20 +54,26 @@ const App = () => {
   const [loader] = useState(new THREE.TextureLoader());
   const [renderer, setRenderer] = useState();
   const [controls, setControls] = useState();
+  
+  const [arm, setArm] = useState();
+  const [ball, setBall] = useState();
+  const [pivot, setPivot] = useState();
+
+  console.log(arm)
 
   const [isAnimated, setIsAnimated] = useState(false);
   const animate = useCallback(() => {
+    console.log('isAnimated', isAnimated)
     if(!isAnimated) return;
 
     requestAnimationFrame( animate );
     controls.update();
+    pivot.rotation.x += degreesToRad(-19);
     // animateArm();
     renderer?.render( scene, camera );
-  }, [isAnimated, camera, scene, renderer, controls])
+  }, [isAnimated, camera, scene, renderer, controls]);
 
-  const [arm, setArm] = useState();
-  const [ball, setBall] = useState();
-  
+
   useEffect(() => {
     console.log('set renderer')
     setRenderer(new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas'), antialias: true }));
@@ -57,6 +81,9 @@ const App = () => {
 
   useEffect(() => {
     if(!renderer || !scene || !camera) return;
+
+    const pivot = new THREE.Group();
+    pivot.position.set( 0, 50, 0 );
 
     // build meshes
     const motor = getMotor(loader);
@@ -66,6 +93,7 @@ const App = () => {
     const target = getTarget(loader);
     const gridHelper = new THREE.GridHelper( 5000, 100 );
 
+    setPivot(pivot);
     setArm(arm);
     setBall(ball);
 
@@ -76,21 +104,28 @@ const App = () => {
     // add meshes to scene
     scene.add( motor );
     scene.add( axle );
+    pivot.add( arm );
     arm.add( ball );
-    scene.add( arm );
+    scene.add( pivot );
     scene.add( target );
     scene.add( gridHelper );
 
     console.log('building scene')
     console.log(scene)
 
-    setIsAnimated(true);
+    if(!isSetup) {
+      console.log('setup complete')
+      setIsAnimated(true);
+      setIsSetup(true);
+    }
 
-  }, [renderer, scene, camera, loader]);
+  }, [isSetup, renderer, scene, camera, loader]);
 
   useEffect(() => {
+    if(!isAnimated) return;
+
     animate();
-  }, [animate, isAnimated, camera, controls, renderer, scene])
+  }, [animate, isAnimated, camera, controls, renderer, scene]);
 
   const onContextMenu = (e) => {
     e.preventDefault();
@@ -105,10 +140,11 @@ const App = () => {
   };
 
   const fire = () => {
-
+    pivot.remove(arm);
+    arm.remove(ball);
   };
 
-  const stopAnimation = () => setIsAnimated(false);
+  const stopAnimation = () => console.log('stop') || setIsAnimated(false);
 
   return (
     <div className="app">

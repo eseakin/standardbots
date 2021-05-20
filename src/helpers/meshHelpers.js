@@ -49,7 +49,7 @@ const getArm = (loader) => {
   
   const arm = new THREE.Mesh( geometry, material );
   
-  arm.position.set( 10, 120, 0 );
+  arm.position.set( 10, 70, 0 );
 
   arm.rotation.y = degreesToRad(90);
   
