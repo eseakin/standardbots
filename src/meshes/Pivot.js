@@ -17,11 +17,16 @@ class Pivot {
     this.maxSpeed = maxSpeed;
 
     this.speed = 0;
+    this.endAngle = null;
   } 
 
   add = (obj) => this.mesh.add(obj)
 
   get = () => this.mesh
+
+  setAngularAccel = (angularAccel) => this.angularAccel = angularAccel
+
+  setMaxSpeed = (maxSpeed) => this.maxSpeed = maxSpeed
 
   calculateRotation = ({ dt, isMotorStarted, power }) => {
     // all measured in radians
@@ -43,6 +48,8 @@ class Pivot {
 
   // negative rotation to go forward
   setRotation = (radians) => this.get().rotation.x -= radians
+
+  setEndAngle = (radians) => this.endAngle = radians
 }
 
 export default Pivot;

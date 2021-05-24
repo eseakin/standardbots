@@ -5,19 +5,16 @@ import ControlPanel from './components/ControlPanel';
 
 import Simulator from './simulator/Simulator';
 
+import config from './utils/config';
+
 import './App.css';
 
 const App = () => {
   const [simulator, setSimulator] = useState();
 
-  // can put these in an import to prevent from redeclaring every render
-  const canvasWidth = 1200;
-  const canvasHeight = 800;
-
   useEffect(() => {
     console.log('set simulator')
-    const aspectRatio = canvasWidth / canvasHeight;
-    setSimulator(new Simulator(aspectRatio));
+    setSimulator(new Simulator(config));
   }, []);
 
   const onContextMenu = (e) => {
@@ -29,9 +26,9 @@ const App = () => {
 
       <Header />
 
-      <div style={{ position: 'relative', width: 1200, height: 800 }}>
+      <div style={{ position: 'relative', width: config.canvasWidth, height: config.canvasHeight }}>
 
-        <canvas width={canvasWidth} height={canvasHeight} onContextMenu={onContextMenu} id="canvas" />
+        <canvas width={config.canvasWidth} height={config.canvasHeight} onContextMenu={onContextMenu} id="canvas" />
         <ControlPanel 
           stopAnimation={simulator?.stopAnimation}
           startMotor={simulator?.startMotor}
@@ -40,6 +37,9 @@ const App = () => {
           fire={simulator?.fire}
           resetScene={simulator?.resetScene}
           setSimPower={simulator?.setPower}
+          setMaxTorque={simulator?.setMaxTorque}
+          setMaxSpeed={simulator?.setMaxSpeed}
+
         />
 
       </div>

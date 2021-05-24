@@ -12,24 +12,8 @@ import {
 
 
 class Simulator {
-  constructor(aspectRatio) {
-    // controls
-    this.settings = {
-      pivotSpeed: 0,
-      pivotAngularAccel: 2018, // radians per second squared
-      pivotAngularDecel: -500, // radians per second squared
-      pivotMaxSpeed: 20, // radians/second
-      pivotPosition: { x: 0, y: 50, z: 0 },
-
-      armPosition: { x: 10, y: 70, z: 0 },
-
-      ballPosition: { x: 15, y: 92.5, z: 0 },
-
-      cameraFov: 40,
-      cameraAspectRatio: aspectRatio,
-      cameraNearClipping: 1,
-      cameraFarClipping: 10000
-    };
+  constructor(config) {
+    this.config = config;
 
     this.init();
   }
@@ -37,16 +21,17 @@ class Simulator {
   init = () => {
     this.isAnimated = true;
     this.isLaunched = false;
-    this.power = 50; // percent
+    this.power = this.config.defaultPower; // percent
+    this.torque = this.config.defaultTorque;
     this.isMotorStarted = false;
 
     // set up scene
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera( 
-      this.settings.cameraFov, 
-      this.settings.cameraAspectRatio, 
-      this.settings.cameraNearClipping, 
-      this.settings.cameraFarClipping 
+      this.config.camera.fov, 
+      this.config.camera.aspectRatio, 
+      this.config.camera.nearClipping, 
+      this.config.camera.farClipping 
     );
     this.loader = new THREE.TextureLoader();
     this.renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas'), antialias: true });
@@ -54,25 +39,26 @@ class Simulator {
 
     // build meshes
     this.pivot = createPivot({ 
-      position: this.settings.pivotPosition,
-      angularAccel: this.settings.pivotAngularAccel,
-      angularDecel: this.settings.pivotAngularDecel,
-      maxSpeed: this.settings.pivotMaxSpeed,
+      position: this.config.pivot.defaultPosition,
+      angularAccel: this.torque / this.config.rotationalInertia,
+      angularDecel: this.config.pivot.angularDecel,
+      maxSpeed: this.config.pivot.defaultMaxSpeed,
     });
     this.motor = createMotor(this.loader);
     this.axle = createAxle(this.loader);
-    this.arm = createArm({ 
+    this.arm = createArm({
       loader: this.loader, 
-      position: this.settings.armPosition,
+      position: this.config.arm.defaultPosition,
     });
     this.ball = createBall({
       loader: this.loader, 
-      position: this.settings.ballPosition,
+      position: this.config.ball.defaultPosition,
     });
     this.target = createTarget(this.loader);
     this.gridHelper = new THREE.GridHelper( 5000, 50 );
 
-    this.camera.position.set( 0, 600, 1200 );
+    const { x, y, z } = this.config.camera.position;
+    this.camera.position.set( x, y, z );
 
     // add meshes to scene
     this.scene.add( this.motor );
@@ -134,7 +120,18 @@ class Simulator {
     this.init();
   }
 
+  setStartingAngle = (radians) => this.pivot?.setRotation(radians)
+
+  setEndAngle = (radians) => this.pivot?.setEndAngle(radians)
+
   setPower = (power) => this.power = power;
+
+  setMaxTorque = (torque) => {
+    this.torque = torque;
+    this.pivot?.setAngularAccel(torque / this.config.rotationalInertia);
+  }
+
+  setMaxSpeed = (maxSpeed) => this.pivot?.setMaxSpeed(maxSpeed)
 }
 
 export default Simulator;
