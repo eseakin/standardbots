@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 
+import Ball from '../meshes/Ball';
+import Pivot from '../meshes/Pivot';
+import Arm from '../meshes/Arm';
+
 import { degreesToRad } from './physicsHelpers';
 
 import aluminum from '../images/4kAluminum2.jpg';
-import steel from '../images/4kSteel.jpeg';
 
 
-const getMotor = (loader) => {
+const createMotor = (loader) => {
   const geometry = new THREE.CylinderGeometry( 30, 30, 300, 32 );
   const material = new THREE.MeshBasicMaterial({
     map: loader.load(aluminum),
@@ -24,7 +27,7 @@ const getMotor = (loader) => {
   return motor;
 }
 
-const getAxle = (loader) => {
+const createAxle = (loader) => {
   const geometry = new THREE.CylinderGeometry( 6, 6, 20, 32 );
   const material = new THREE.MeshBasicMaterial({
     map: loader.load(aluminum),
@@ -40,36 +43,13 @@ const getAxle = (loader) => {
   return axle;
 }
 
-const getArm = (loader) => {
-  const geometry = new THREE.CylinderGeometry( 7.5, 7.5, 200, 32 );
-  const material = new THREE.MeshBasicMaterial({
-    map: loader.load(aluminum),
-    color: '#736337'
-  });
-  
-  const arm = new THREE.Mesh( geometry, material );
-  
-  arm.position.set( 10, 70, 0 );
+const createPivot = (params) => new Pivot(params);
 
-  arm.rotation.y = degreesToRad(90);
-  
-  return arm;
-}
+const createArm = (params) => new Arm(params);
 
-const getBall = (loader) => {
-  const geometry = new THREE.SphereGeometry( 7.5, 32, 32 );
-  const material = new THREE.MeshBasicMaterial({
-    map: loader.load(steel),
-    color: '#b9ff21'
-  });
-  const ball = new THREE.Mesh( geometry, material );
+const createBall = (params) => new Ball(params);
 
-  ball.position.set( 15, 92.5, 0 );
-  
-  return ball;
-}
-
-const getTarget = () => {
+const createTarget = () => {
   const geometry = new THREE.BoxGeometry(150, 150, 1);
   const material = new THREE.MeshBasicMaterial({ 
     color: '#d63e48' 
@@ -82,9 +62,10 @@ const getTarget = () => {
 }
 
 export {
-  getMotor,
-  getAxle,
-  getArm,
-  getBall,
-  getTarget,
+  createMotor,
+  createAxle,
+  createPivot,
+  createArm,
+  createBall,
+  createTarget,
 };

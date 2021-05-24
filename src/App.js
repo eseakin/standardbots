@@ -10,9 +10,14 @@ import './App.css';
 const App = () => {
   const [simulator, setSimulator] = useState();
 
+  // can put these in an import to prevent from redeclaring every render
+  const canvasWidth = 1200;
+  const canvasHeight = 800;
+
   useEffect(() => {
     console.log('set simulator')
-    setSimulator(new Simulator());
+    const aspectRatio = canvasWidth / canvasHeight;
+    setSimulator(new Simulator(aspectRatio));
   }, []);
 
   const onContextMenu = (e) => {
@@ -26,12 +31,15 @@ const App = () => {
 
       <div style={{ position: 'relative', width: 1200, height: 800 }}>
 
-        <canvas width={1200} height={800} onContextMenu={onContextMenu} id="canvas" />
-      
+        <canvas width={canvasWidth} height={canvasHeight} onContextMenu={onContextMenu} id="canvas" />
         <ControlPanel 
-          stopAnimation={simulator?.stopAnimation} 
-          startMotor={simulator?.startMotor} 
-          fire={simulator?.fire} 
+          stopAnimation={simulator?.stopAnimation}
+          startMotor={simulator?.startMotor}
+          stopMotor={simulator?.stopMotor}
+          isMotorStarted={simulator?.isMotorStarted}
+          fire={simulator?.fire}
+          resetScene={simulator?.resetScene}
+          setSimPower={simulator?.setPower}
         />
 
       </div>
