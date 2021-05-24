@@ -45,19 +45,22 @@ const ControlPanel = ({
   return(
     <div style={{ position: 'absolute', top: 20, left: 20, color: 'white' }}>
 
-      <div style={{display: 'flex', alignItems: 'center'}}>
-        <button style={{ marginRight: 10 }} onClick={stopAnimation}>Stop Animation</button>
-        <button style={{ marginRight: 10 }} onClick={handleMotorStart}>
-          {motorStarted ? 'Stop motor' : 'Start motor'}
-        </button>
-        <button style={{ marginRight: 10 }} onClick={fire}>Fire</button>
-        <button style={{ marginRight: 10 }} onClick={resetScene}>Reset</button>
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 20}}>
-          <label>Power level: {power}%</label>
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            <input id="powerLevel" type="range" min="1" max="100" value={power} onChange={handlePowerChange}/>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 1160 }}>
+        <div style={{ display: 'flex', marginBottom: 20 }}>
+          <button style={{ marginRight: 10 }} onClick={handleMotorStart}>
+            {motorStarted ? 'Stop motor' : 'Start motor'}
+          </button>
+          <button style={{ marginRight: 10 }} onClick={fire}>Fire</button>
+          <button style={{ marginRight: 10 }} onClick={resetScene}>Reset</button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 20 }}>
+            <label>Power level: {power}%</label>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input id="powerLevel" type="range" min="1" max="100" value={power} onChange={handlePowerChange}/>
+            </div>
           </div>
         </div>
+
+        <button style={{ marginRight: 10 }} onClick={stopAnimation}>Stop Animation</button>
       </div>
 
       <div style={{display: 'flex', alignItems: 'center', marginBottom: 5 }}>

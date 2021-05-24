@@ -19,6 +19,10 @@ class Ball {
   }
 
   get = () => this.mesh
+
+  calculateSpeed = () => {}
+
+  calculatePosition = () => {}
 }
 
 export default Ball;

@@ -1,14 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from '../utils/OrbitControls';
 
-import { 
-  createMotor,
-  createAxle,
-  createArm,
-  createBall,
-  createTarget,
-  createPivot,
-} from '../helpers/meshHelpers';
+import Motor from '../meshes/Motor';
+import Axle from '../meshes/Axle';
+import Pivot from '../meshes/Pivot';
+import Arm from '../meshes/Arm';
+import Ball from '../meshes/Ball';
+import Target from '../meshes/Target';
 
 
 class Simulator {
@@ -38,35 +36,44 @@ class Simulator {
     this.controls = new OrbitControls( this.camera, this.renderer.domElement );
 
     // build meshes
-    this.pivot = createPivot({ 
+    this.pivot = new Pivot({ 
       position: this.config.pivot.defaultPosition,
       angularAccel: this.torque / this.config.rotationalInertia,
       angularDecel: this.config.pivot.angularDecel,
       maxSpeed: this.config.pivot.defaultMaxSpeed,
     });
-    this.motor = createMotor(this.loader);
-    this.axle = createAxle(this.loader);
-    this.arm = createArm({
+    this.motor = new Motor({
+      loader: this.loader, 
+      position: this.config.motor.defaultPosition,
+    });
+    this.axle = new Axle({
+      loader: this.loader, 
+      position: this.config.axle.defaultPosition,
+    });
+    this.arm = new Arm({
       loader: this.loader, 
       position: this.config.arm.defaultPosition,
     });
-    this.ball = createBall({
+    this.ball = new Ball({
       loader: this.loader, 
       position: this.config.ball.defaultPosition,
     });
-    this.target = createTarget(this.loader);
+    this.target = new Target({
+      loader: this.loader,
+      position: this.config.target.defaultPosition,
+    });
     this.gridHelper = new THREE.GridHelper( 5000, 50 );
 
     const { x, y, z } = this.config.camera.position;
     this.camera.position.set( x, y, z );
 
     // add meshes to scene
-    this.scene.add( this.motor );
-    this.scene.add( this.axle );
+    this.scene.add( this.motor.get() );
+    this.scene.add( this.axle.get() );
     this.pivot.add( this.arm.get() );
     this.arm.add( this.ball.get() );
     this.scene.add( this.pivot.get() );
-    this.scene.add( this.target );
+    this.scene.add( this.target.get() );
     this.scene.add( this.gridHelper );
 
     console.log('scene', this.scene)

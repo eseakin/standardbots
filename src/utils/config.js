@@ -6,6 +6,14 @@ const config = {
   defaultTorque: 2, // newton meters
   rotationalInertia: 0.00099117285, // kg m²
 
+  motor: {
+    defaultPosition: { x: -150, y: 50, z: 0 },
+  },
+
+  axle: {
+    defaultPosition: { x: 0, y: 50, z: 0 },
+  },
+
   pivot: {
     angularDecel: -500, // radians per second²
     defaultMaxSpeed: 20, // radians per second
@@ -18,6 +26,10 @@ const config = {
 
   ball: {
     defaultPosition: { x: 15, y: 92.5, z: 0 }, // mm
+  },
+
+  target: {
+    defaultPosition: { x: 0, y: 200, z: -800 },
   },
 
   camera: {
