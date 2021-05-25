@@ -7,6 +7,7 @@ import Pivot from '../meshes/Pivot';
 import Arm from '../meshes/Arm';
 import Ball from '../meshes/Ball';
 import Target from '../meshes/Target';
+import GridHelper from '../meshes/GridHelper';
 
 
 class Simulator {
@@ -41,6 +42,7 @@ class Simulator {
       angularAccel: this.torque / this.config.rotationalInertia,
       angularDecel: this.config.pivot.angularDecel,
       maxSpeed: this.config.pivot.defaultMaxSpeed,
+      defaultStartingAngle: this.config.pivot.defaultStartingAngle,
     });
     this.motor = new Motor({
       loader: this.loader, 
@@ -62,9 +64,12 @@ class Simulator {
       loader: this.loader,
       position: this.config.target.defaultPosition,
     });
-    this.gridHelper = new THREE.GridHelper( 5000, 50 );
+    this.gridHelper = new GridHelper({ 
+      size: this.config.gridHelper.size,
+      divisions: this.config.gridHelper.divisions,
+    });
 
-    const { x, y, z } = this.config.camera.position;
+    const { x, y, z } = this.config.camera.defaultPosition;
     this.camera.position.set( x, y, z );
 
     // add meshes to scene
@@ -74,7 +79,7 @@ class Simulator {
     this.arm.add( this.ball.get() );
     this.scene.add( this.pivot.get() );
     this.scene.add( this.target.get() );
-    this.scene.add( this.gridHelper );
+    this.scene.add( this.gridHelper.get() );
 
     console.log('scene', this.scene)
 
@@ -86,7 +91,6 @@ class Simulator {
     if(!this.isAnimated) return;
 
     const dt = this.clock?.getDelta() ?? 0;
-    console.log('dt', dt)
 
     this.pivot.calculateRotation({
       dt,
@@ -95,7 +99,9 @@ class Simulator {
     });
 
     if(this.isLaunched) {
+      // calculate angular velocity -> linear velocity
       this.ball.get().position.x += 1 * this.power / 100;
+      
       this.ball.get().position.y -= 1; // HOW TO ADD GRAVITY?
     }
 
@@ -129,7 +135,7 @@ class Simulator {
 
   setStartingAngle = (radians) => this.pivot?.setRotation(radians)
 
-  setEndAngle = (radians) => this.pivot?.setEndAngle(radians)
+  setEndingAngle = (radians) => this.pivot?.setEndingAngle(radians)
 
   setPower = (power) => this.power = power;
 

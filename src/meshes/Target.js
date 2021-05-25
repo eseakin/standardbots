@@ -9,7 +9,7 @@ class Target {
   ) {
     this.geometry = new THREE.BoxGeometry(150, 150, 1);
     this.material = new THREE.MeshBasicMaterial({ 
-      color: '#d63e48' 
+      color: '#eee' 
     });
     this.mesh = new THREE.Mesh( this.geometry, this.material );
 

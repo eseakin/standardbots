@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { Button } from 'semantic-ui-react';
+
+import { degreesToRad, radToDegrees } from '../helpers/physicsHelpers';
+
+import './ControlPanel.css';
 
 const ControlPanel = ({ 
   stopAnimation, 
@@ -10,21 +15,18 @@ const ControlPanel = ({
   setSimPower,
   setMaxTorque,
   setMaxSpeed,
+  setStartingAngle,
+  setEndingAngle,
+  config,
 }) => {
-  const [power, setPower] = useState(50);
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  const [power, setPower] = useState(config.defaultPower);
+  const [prevPower, setPrevPower] = useState(config.defaultPower);
   const [motorStarted, setMotorStarted] = useState(false);
-  const [torque, setTorque] = useState(2);
-  const [speed, setSpeed] = useState(20);
-
-  const handlePowerChange = (e) => {
-    setPower(e.target.value);
-    setSimPower(e.target.value);
-  }
-
-  const handleTorqueChange = (e) => {
-    setTorque(e.target.value);
-    setMaxTorque(e.target.value);
-  }
+  const [torque, setTorque] = useState(config.defaultTorque);
+  const [speed, setSpeed] = useState(config.pivot.defaultMaxSpeed);
+  const [startAngle, setStartAngle] = useState(radToDegrees(config.pivot.defaultStartingAngle));
+  const [endAngle, setEndAngle] = useState(radToDegrees(config.pivot.defaultEndingAngle));
 
   const handleMotorStart = () => {
     if(motorStarted) {
@@ -36,42 +38,117 @@ const ControlPanel = ({
     }
   }
 
+  const handleSetLiveMode = () => {
+    if(isLiveMode) {
+      // save power setting so we can come back to it
+      setPrevPower(power);
+      // set to max power for non live mode
+      setPower(100);
+
+    } else {
+      // set power back to previous level
+      setPower(prevPower);
+    }
+
+    setIsLiveMode(prevVal => !prevVal);
+  }
+
+  const handlePowerChange = (e) => {
+    setPower(e.target.value);
+    setSimPower(e.target.value);
+  }
+
+  const handleTorqueChange = (e) => {
+    setTorque(e.target.value);
+    setMaxTorque(e.target.value);
+  }
+
   const handleSpeedChange = (e) => {
     setSpeed(e.target.value);
     setMaxSpeed(e.target.value);
   }
 
-  console.log(power)
-  return(
-    <div style={{ position: 'absolute', top: 20, left: 20, color: 'white' }}>
+  const handleStartAngleChange = (e) => {
+    const { value } = e.target;
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 1160 }}>
-        <div style={{ display: 'flex', marginBottom: 20 }}>
-          <button style={{ marginRight: 10 }} onClick={handleMotorStart}>
-            {motorStarted ? 'Stop motor' : 'Start motor'}
-          </button>
-          <button style={{ marginRight: 10 }} onClick={fire}>Fire</button>
-          <button style={{ marginRight: 10 }} onClick={resetScene}>Reset</button>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 20 }}>
-            <label>Power level: {power}%</label>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input id="powerLevel" type="range" min="1" max="100" value={power} onChange={handlePowerChange}/>
+    setStartAngle(value);
+    setStartingAngle(degreesToRad(value));
+  }
+
+  const handleEndAngleChange = (e) => {
+    const { value } = e.target;
+
+    setEndAngle(value);
+    setEndingAngle(degreesToRad(value));
+  }
+
+  const handleRunSimulation = () => {} // FIX ME
+
+  return(
+    <div className="control-panel">
+
+      {isLiveMode && 
+        <div className="live-mode-panel">
+          <div className="live-mode-container">
+
+            <Button className="margin-right" onClick={handleMotorStart}>
+              {motorStarted ? 'Stop motor' : 'Start motor'}
+            </Button>
+
+            <Button className="margin-right" onClick={fire}>Fire</Button>
+
+            <Button className="margin-right" onClick={resetScene}>Reset</Button>
+
+            <div className="power-level-panel">
+              <label>Power level: {power}%</label>
+              <div className="power-level-slider">
+                <input id="powerLevel" type="range" min="1" max="100" value={power} onChange={handlePowerChange}/>
+              </div>
             </div>
+
+          </div>
+        </div>
+      }
+
+      {!isLiveMode &&
+        <div className="off-air-mode-panel">
+          <div className="off-air-mode-input">
+            <label className="off-air-mode-label">Max torque</label>
+            <input type="number" label="test" value={torque} onChange={handleTorqueChange} />
+          </div>
+
+          <div className="off-air-mode-input">
+            <label className="off-air-mode-label">Max speed</label>
+            <input type="number" label="test" value={speed} onChange={handleSpeedChange} />
+          </div>
+
+          <div className="off-air-mode-input">
+            <label className="off-air-mode-label">Starting Angle</label>
+            <input type="number" label="test" value={startAngle} onChange={handleStartAngleChange} />
+          </div>
+
+          <div className="off-air-mode-input">
+            <label className="off-air-mode-label">Release Angle</label>
+            <input type="number" label="test" value={endAngle} onChange={handleEndAngleChange} />
+          </div>
+          
+          <div className="off-air-mode-run-button">
+            <Button color="teal" onClick={handleRunSimulation}>Run</Button>
           </div>
         </div>
 
-        <button style={{ marginRight: 10 }} onClick={stopAnimation}>Stop Animation</button>
+      }
+
+      <div className="live-mode-button">
+        <Button
+          onClick={handleSetLiveMode} 
+          color={isLiveMode ? 'red' : 'green'}
+        >
+            {isLiveMode ? 'Go off-air' : 'Do it live!'}
+        </Button>
       </div>
 
-      <div style={{display: 'flex', alignItems: 'center', marginBottom: 5 }}>
-        <label style={{ marginRight: 10, width: 100 }}>Max torque</label>
-        <input type="text" label="test" value={torque} style={{ width: 50 }} onChange={handleTorqueChange} />
-      </div>
-
-      <div style={{display: 'flex', alignItems: 'center', marginBottom: 5 }}>
-        <label style={{ marginRight: 10, width: 100 }}>Max speed</label>
-        <input type="text" label="test" value={speed} style={{ width: 50 }} onChange={handleSpeedChange} />
-      </div>
+      <Button className="stop-animation-button" onClick={stopAnimation} color="red">Stop animation</Button>
 
     </div>
   );

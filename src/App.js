@@ -7,6 +7,7 @@ import Simulator from './simulator/Simulator';
 
 import config from './utils/config';
 
+import 'semantic-ui-css/semantic.min.css';
 import './App.css';
 
 const App = () => {
@@ -39,7 +40,9 @@ const App = () => {
           setSimPower={simulator?.setPower}
           setMaxTorque={simulator?.setMaxTorque}
           setMaxSpeed={simulator?.setMaxSpeed}
-
+          setStartingAngle={simulator?.setStartingAngle}
+          setEndingAngle={simulator?.setEndingAngle}
+          config={config}
         />
 
       </div>

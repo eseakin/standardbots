@@ -7,6 +7,7 @@ class Pivot {
       angularAccel,
       angularDecel,
       maxSpeed,
+      defaultStartingAngle,
     }
   ) {
 
@@ -17,7 +18,9 @@ class Pivot {
     this.maxSpeed = maxSpeed;
 
     this.speed = 0;
-    this.endAngle = null;
+    this.endingAngle = null;
+
+    this.setRotation(defaultStartingAngle);
   } 
 
   add = (obj) => this.mesh.add(obj)
@@ -40,16 +43,18 @@ class Pivot {
       dv = .5 * this.angularDecel * dt * dt;
       this.speed = Math.max(this.speed + dv, 0);
     }
-    console.log('dv', dv)
+    // console.log('dv', dv)
 
-    console.log('pivotSpeed', this.speed)
-    this.setRotation( this.speed * dt );
+    // console.log('pivotSpeed', this.speed)
+    this.addRotation( this.speed * dt );
   }
 
   // negative rotation to go forward
-  setRotation = (radians) => this.get().rotation.x -= radians
+  addRotation = (radians) => this.get().rotation.x -= radians
 
-  setEndAngle = (radians) => this.endAngle = radians
+  setRotation = (radians) => this.get().rotation.x = .5 * Math.PI - radians
+
+  setEndingAngle = (radians) => this.endingAngle = radians
 }
 
 export default Pivot;

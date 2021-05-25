@@ -1,3 +1,5 @@
+import { degreesToRad } from '../helpers/physicsHelpers';
+
 const config = {
   canvasWidth: 1200,
   canvasHeight: 800,
@@ -18,6 +20,8 @@ const config = {
     angularDecel: -500, // radians per second²
     defaultMaxSpeed: 20, // radians per second
     defaultPosition: { x: 0, y: 50, z: 0 }, // mm
+    defaultStartingAngle: degreesToRad(75),
+    defaultEndingAngle: degreesToRad(120),
   },
 
   arm: {
@@ -29,15 +33,20 @@ const config = {
   },
 
   target: {
-    defaultPosition: { x: 0, y: 200, z: -800 },
+    defaultPosition: { x: 0, y: 200, z: -800 }, // mm
   },
 
   camera: {
     fov: 40,
     nearClipping: 1,
     farClipping: 10000,
-    position: { x: 0, y: 600, z: 1200 },
+    defaultPosition: { x: 0, y: 600, z: 1200 }, // mm
   },
+
+  gridHelper: {
+    size: 5000,
+    divisions: 50, 
+  }
 };
 
 config.camera.aspectRatio = config.canvasWidth / config.canvasHeight;
