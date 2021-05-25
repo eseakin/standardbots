@@ -17,9 +17,11 @@ const ControlPanel = ({
   setMaxSpeed,
   setStartingAngle,
   setEndingAngle,
+  setIsLiveMode,
+  runSimulation,
   config,
 }) => {
-  const [isLiveMode, setIsLiveMode] = useState(false);
+  const [liveMode, setLiveMode] = useState(false);
   const [power, setPower] = useState(config.defaultPower);
   const [prevPower, setPrevPower] = useState(config.defaultPower);
   const [motorStarted, setMotorStarted] = useState(false);
@@ -39,18 +41,20 @@ const ControlPanel = ({
   }
 
   const handleSetLiveMode = () => {
-    if(isLiveMode) {
+    if(liveMode) {
       // save power setting so we can come back to it
       setPrevPower(power);
       // set to max power for non live mode
       setPower(100);
+      setIsLiveMode(false);
 
     } else {
       // set power back to previous level
       setPower(prevPower);
+      setIsLiveMode(true);
     }
 
-    setIsLiveMode(prevVal => !prevVal);
+    setLiveMode(prevVal => !prevVal);
   }
 
   const handlePowerChange = (e) => {
@@ -82,12 +86,21 @@ const ControlPanel = ({
     setEndingAngle(degreesToRad(value));
   }
 
-  const handleRunSimulation = () => {} // FIX ME
+  const handleReset = () => {
+    resetScene();
+    setLiveMode(false);
+    setPower(config.defaultPower);
+    setMotorStarted(config.false);
+    setTorque(config.defaultTorque);
+    setSpeed(config.pivot.defaultMaxSpeed);
+    setStartAngle(radToDegrees(config.pivot.defaultStartingAngle));
+    setEndAngle(radToDegrees(config.pivot.defaultEndingAngle));
+  }
 
   return(
     <div className="control-panel">
 
-      {isLiveMode && 
+      {liveMode && 
         <div className="live-mode-panel">
           <div className="live-mode-container">
 
@@ -97,7 +110,7 @@ const ControlPanel = ({
 
             <Button className="margin-right" onClick={fire}>Fire</Button>
 
-            <Button className="margin-right" onClick={resetScene}>Reset</Button>
+            <Button className="margin-right" onClick={handleReset}>Reset</Button>
 
             <div className="power-level-panel">
               <label>Power level: {power}%</label>
@@ -110,7 +123,7 @@ const ControlPanel = ({
         </div>
       }
 
-      {!isLiveMode &&
+      {!liveMode &&
         <div className="off-air-mode-panel">
           <div className="off-air-mode-input">
             <label className="off-air-mode-label">Max torque</label>
@@ -133,7 +146,8 @@ const ControlPanel = ({
           </div>
           
           <div className="off-air-mode-run-button">
-            <Button color="teal" onClick={handleRunSimulation}>Run</Button>
+            <Button color="teal" onClick={runSimulation}>Run</Button>
+            <Button className="margin-right" onClick={handleReset}>Reset</Button>
           </div>
         </div>
 
@@ -142,9 +156,9 @@ const ControlPanel = ({
       <div className="live-mode-button">
         <Button
           onClick={handleSetLiveMode} 
-          color={isLiveMode ? 'red' : 'green'}
+          color={liveMode ? 'red' : 'green'}
         >
-            {isLiveMode ? 'Go off-air' : 'Do it live!'}
+            {liveMode ? 'Go off-air' : 'Do it live!'}
         </Button>
       </div>
 

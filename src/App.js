@@ -42,6 +42,8 @@ const App = () => {
           setMaxSpeed={simulator?.setMaxSpeed}
           setStartingAngle={simulator?.setStartingAngle}
           setEndingAngle={simulator?.setEndingAngle}
+          setIsLiveMode={simulator?.setIsLiveMode}
+          runSimulation={simulator?.runSimulation}
           config={config}
         />
 

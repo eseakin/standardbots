@@ -18,6 +18,7 @@ class Simulator {
   }
 
   init = () => {
+    this.isLiveMode = false;
     this.isAnimated = true;
     this.isLaunched = false;
     this.power = this.config.defaultPower; // percent
@@ -43,6 +44,7 @@ class Simulator {
       angularDecel: this.config.pivot.angularDecel,
       maxSpeed: this.config.pivot.defaultMaxSpeed,
       defaultStartingAngle: this.config.pivot.defaultStartingAngle,
+      isLiveMode: false,
     });
     this.motor = new Motor({
       loader: this.loader, 
@@ -100,8 +102,8 @@ class Simulator {
 
     if(this.isLaunched) {
       // calculate angular velocity -> linear velocity
-      this.ball.get().position.x += 1 * this.power / 100;
-      
+      this.ball.get().position.x += 3400 * dt * this.power / 100;
+
       this.ball.get().position.y -= 1; // HOW TO ADD GRAVITY?
     }
 
@@ -145,6 +147,12 @@ class Simulator {
   }
 
   setMaxSpeed = (maxSpeed) => this.pivot?.setMaxSpeed(maxSpeed)
+
+  setIsLiveMode = (val) => this.pivot.setIsLiveMode(val)
+
+  runSimulation = () => {
+    this.startMotor();
+  }
 }
 
 export default Simulator;
